@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Economic & MSME Survey — ENB Division of Commerce & Industry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <p class="header-eyebrow">East New Britain Provincial Administration</p>
+    <h1 class="header-title">Economic &amp; MSME Survey</h1>
+    <p class="header-sub">Division of Commerce &amp; Industry — digital data collection</p>
+    <nav class="header-nav">
+      <a href="index.html" class="active">New Survey</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label">
+      <span id="progressText">Section A of 7</span>
+      <span id="progressPercent">0%</span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <form id="surveyForm" novalidate>
+
+    <!-- ============ SECTION A: LOCATION ============ -->
+    <section class="section" data-section="A">
+      <div class="section-head">
+        <span class="section-letter">A</span>
+        <h2 class="section-title">Location</h2>
+      </div>
+      <div class="section-body">
+        <div class="field-row">
+          <div class="field-group">
+            <label for="district">District <span class="required-mark">*</span></label>
+            <input type="text" id="district" name="district" required placeholder="e.g. Kokopo">
+            <p class="error-text">Please enter the district.</p>
+          </div>
+          <div class="field-group">
+            <label for="llg">LLG <span class="required-mark">*</span></label>
+            <input type="text" id="llg" name="llg" required placeholder="Local Level Government">
+            <p class="error-text">Please enter the LLG.</p>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="village">Village <span class="required-mark">*</span></label>
+            <input type="text" id="village" name="village" required>
+            <p class="error-text">Please enter the village.</p>
+          </div>
+          <div class="field-group">
+            <label for="ward">Ward</label>
+            <input type="text" id="ward" name="ward">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="household_no">Household No.</label>
+            <input type="text" id="household_no" name="household_no">
+          </div>
+          <div class="field-group">
+            <label for="date_collected">Date Data Collected <span class="required-mark">*</span></label>
+            <input type="date" id="date_collected" name="date_collected" required>
+            <p class="error-text">Please select a date.</p>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="contact_person">Contact Person &amp; Mobile Number</label>
+            <input type="text" id="contact_person" name="contact_person" placeholder="Name">
+          </div>
+          <div class="field-group">
+            <label for="contact_mobile">&nbsp;</label>
+            <input type="tel" id="contact_mobile" name="contact_mobile" placeholder="Mobile number">
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="postal_address">Postal Address</label>
+          <input type="text" id="postal_address" name="postal_address">
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION B: EMPLOYMENT & EDUCATION ============ -->
+    <section class="section" data-section="B">
+      <div class="section-head">
+        <span class="section-letter">B</span>
+        <h2 class="section-title">Employment &amp; Education Information</h2>
+      </div>
+      <div class="section-body">
+        <div class="field-group">
+          <label for="num_employed_family">How many family members are formally employed currently?</label>
+          <input type="number" id="num_employed_family" name="num_employed_family" min="0" step="1" style="max-width:160px">
+        </div>
+
+        <p class="hint" style="margin-bottom:10px">Table 1 — Employed family members: place of employment in ENB, another centre in PNG, or abroad, gross monthly income, and education qualifications.</p>
+        <div class="repeat-table-wrap">
+          <table class="repeat-table" id="employedTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Highest Qualification</th>
+                <th>Institution</th>
+                <th>Year Graduated</th>
+                <th>Employer &amp; Location</th>
+                <th>Gross Monthly Pay (K)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="employedTableBody"></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-add-row" id="addEmployedRow">+ Add family member</button>
+
+        <p class="hint" style="margin:22px 0 10px">Table 2 — Family members currently unemployed, above 18 years, not students, who hold a trade or tertiary qualification.</p>
+        <div class="repeat-table-wrap">
+          <table class="repeat-table" id="unemployedTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Highest Qualification</th>
+                <th>Institution</th>
+                <th>Year Graduated</th>
+                <th>Comments</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="unemployedTableBody"></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-add-row" id="addUnemployedRow">+ Add family member</button>
+
+        <div class="field-group" style="margin-top:22px">
+          <label>Does the household or family own or run a formal business? <span class="required-mark">*</span></label>
+          <div class="choice-group" id="hasBusinessGroup">
+            <label class="choice-pill">
+              <input type="radio" name="has_business" value="yes" required>
+              <span>Yes — formal business</span>
+            </label>
+            <label class="choice-pill">
+              <input type="radio" name="has_business" value="informal">
+              <span>No, but informal business</span>
+            </label>
+            <label class="choice-pill">
+              <input type="radio" name="has_business" value="no">
+              <span>No business</span>
+            </label>
+          </div>
+          <p class="hint">Choosing your answer will automatically show the relevant sections below.</p>
+        </div>
+      </div>
+      <div class="section-skip-note" id="branchExplainer" style="display:none"></div>
+    </section>
+
+    <!-- ============ SECTION C: BUSINESS BACKGROUND ============ -->
+    <section class="section" data-section="C" id="sectionC" style="display:none">
+      <div class="section-head">
+        <span class="section-letter">C</span>
+        <h2 class="section-title">Business Background Information</h2>
+      </div>
+      <div class="section-body">
+
+        <div class="field-group">
+          <label>1. Business Activity(ies) Undertaken</label>
+          <div id="businessActivitiesWrap"></div>
+          <div class="field-group" style="margin-top:12px">
+            <label for="business_activity_other">Other (specify)</label>
+            <input type="text" id="business_activity_other" name="business_activity_other">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label for="business_name">2. Name of Business</label>
+            <input type="text" id="business_name" name="business_name">
+          </div>
+          <div class="field-group">
+            <label for="business_date_commenced">3. Date Business Commenced</label>
+            <input type="date" id="business_date_commenced" name="business_date_commenced">
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="business_owner">4. Business Owner</label>
+          <input type="text" id="business_owner" name="business_owner">
+          <p class="hint">If foreign, refer to IPA form.</p>
+        </div>
+        <div class="field-group">
+          <label for="other_business_location">5. Any other Business Location? If yes, where?</label>
+          <input type="text" id="other_business_location" name="other_business_location">
+        </div>
+
+        <div class="field-group">
+          <label>6. IPA Registration?</label>
+          <div class="choice-group">
+            <label class="choice-pill"><input type="radio" name="ipa_registered" value="yes"><span>Yes</span></label>
+            <label class="choice-pill"><input type="radio" name="ipa_registered" value="no"><span>No</span></label>
+          </div>
+          <p class="hint">If yes, complete the form of registration below.</p>
+          <div class="repeat-table-wrap" style="margin-top:10px">
+            <table class="repeat-table">
+              <thead><tr><th>Business Form</th><th>Date Reg'd</th><th>Reg. No.</th><th>Expiry Date</th></tr></thead>
+              <tbody id="ipaFormsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>7. Types of Licenses</label>
+          <div class="repeat-table-wrap">
+            <table class="repeat-table">
+              <thead><tr><th style="width:34px"></th><th>Type of License</th><th>Receipt No.</th><th>Expiry Date</th></tr></thead>
+              <tbody id="licensesTableBody"></tbody>
+            </table>
+          </div>
+          <div class="field-group" style="margin-top:10px">
+            <label for="licenses_comment">Comment</label>
+            <textarea id="licenses_comment" name="licenses_comment"></textarea>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>8. Are you able to access a Business Loan?</label>
+          <div class="choice-group" id="hasLoanGroup">
+            <label class="choice-pill"><input type="radio" name="has_business_loan" value="yes"><span>Yes</span></label>
+            <label class="choice-pill"><input type="radio" name="has_business_loan" value="no"><span>No</span></label>
+          </div>
+
+          <div id="loanYesBlock" style="display:none; margin-top:14px">
+            <p class="hint" style="margin-bottom:8px">Table 1 — Access to Business Loan</p>
+            <div class="repeat-table-wrap">
+              <table class="repeat-table">
+                <thead><tr><th>Bank/Financial Institution</th><th>Loan Amount (K)</th><th>Date of Loan</th><th>On Schedule?</th><th>Comments</th><th></th></tr></thead>
+                <tbody id="loansTableBody"></tbody>
+              </table>
+            </div>
+            <button type="button" class="btn-add-row" id="addLoanRow">+ Add loan</button>
+          </div>
+
+          <div id="loanNoBlock" style="display:none; margin-top:14px">
+            <label for="no_loan_reasons">Table 2 — State reasons why you are not able to access business loans</label>
+            <textarea id="no_loan_reasons" name="no_loan_reasons"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION D: BUSINESS DEVELOPMENT ASSISTANCE ============ -->
+    <section class="section" data-section="D" id="sectionD" style="display:none">
+      <div class="section-head">
+        <span class="section-letter">D</span>
+        <h2 class="section-title">Business Development Assistance</h2>
+      </div>
+      <div class="section-body">
+
+        <div class="field-group">
+          <label>Business Training Workshop Attended</label>
+          <div class="repeat-table-wrap">
+            <table class="repeat-table">
+              <thead><tr><th style="width:34px"></th><th>Type of Training</th><th>Training Facilitator</th></tr></thead>
+              <tbody id="trainingAttendedTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Type of Training Required</label>
+          <div class="check-list" id="trainingRequiredWrap"></div>
+          <div class="field-group" style="margin-top:12px">
+            <label for="training_other">Other specific trainings required</label>
+            <input type="text" id="training_other" name="training_other">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Type of Assistance Required</label>
+          <div class="check-list" id="assistanceWrap"></div>
+          <div class="field-group" style="margin-top:12px">
+            <label for="assistance_other">Other (specify)</label>
+            <input type="text" id="assistance_other" name="assistance_other">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="section_d_comment">Comment</label>
+          <textarea id="section_d_comment" name="section_d_comment"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION E: ECONOMIC OUTPUT DEVELOPMENT ============ -->
+    <section class="section" data-section="E" id="sectionE" style="display:none">
+      <div class="section-head">
+        <span class="section-letter">E</span>
+        <h2 class="section-title">Economic Output Development</h2>
+      </div>
+      <div class="section-body">
+
+        <p class="subgroup-label">1. Employment</p>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="num_casuals">No. of Casuals</label>
+            <input type="number" id="num_casuals" name="num_casuals" min="0">
+          </div>
+          <div class="field-group">
+            <label for="casuals_years_employed">Years Employed (Casuals)</label>
+            <input type="number" id="casuals_years_employed" name="casuals_years_employed" min="0" step="0.5">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="num_permanent">No. of Permanent</label>
+            <input type="number" id="num_permanent" name="num_permanent" min="0">
+          </div>
+          <div class="field-group">
+            <label for="permanent_years_employed">Years Employed (Permanent)</label>
+            <input type="number" id="permanent_years_employed" name="permanent_years_employed" min="0" step="0.5">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="wages_casual_fortnightly">Employees Fortnightly Wages — Casual</label>
+            <div class="currency-input"><input type="number" id="wages_casual_fortnightly" name="wages_casual_fortnightly" min="0" step="0.01"></div>
+          </div>
+          <div class="field-group">
+            <label for="wages_permanent_fortnightly">Employees Fortnightly Wages — Permanent</label>
+            <div class="currency-input"><input type="number" id="wages_permanent_fortnightly" name="wages_permanent_fortnightly" min="0" step="0.01"></div>
+          </div>
+        </div>
+
+        <p class="subgroup-label">2. Investment</p>
+        <div class="field-group">
+          <label>2.1 What is your monthly turnover?</label>
+          <div class="field-row">
+            <select id="turnover_band" name="turnover_band">
+              <option value="">Select range…</option>
+            </select>
+            <div class="currency-input"><input type="number" id="turnover_amount" name="turnover_amount" min="0" placeholder="Amount" step="0.01"></div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>2.2 What are your estimated monthly expenses?</label>
+          <div class="field-row">
+            <select id="expenses_band" name="expenses_band">
+              <option value="">Select range…</option>
+            </select>
+            <div class="currency-input"><input type="number" id="expenses_amount" name="expenses_amount" min="0" placeholder="Amount" step="0.01"></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="initial_capital">2.3 Initial Capital</label>
+            <div class="currency-input"><input type="number" id="initial_capital" name="initial_capital" min="0" step="0.01"></div>
+          </div>
+          <div class="field-group">
+            <label for="value_of_assets">2.4 Value of Assets to Date</label>
+            <div class="currency-input"><input type="number" id="value_of_assets" name="value_of_assets" min="0" step="0.01"></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="other_investments">2.5 Other Investments</label>
+            <div class="currency-input"><input type="number" id="other_investments" name="other_investments" min="0" step="0.01"></div>
+          </div>
+          <div class="field-group">
+            <label for="other_investments_specify">Specify</label>
+            <input type="text" id="other_investments_specify" name="other_investments_specify">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION F: CASH CROPS ============ -->
+    <section class="section" data-section="F" id="sectionF" style="display:none">
+      <div class="section-head">
+        <span class="section-letter">F</span>
+        <h2 class="section-title">Cash Crops</h2>
+      </div>
+      <div class="section-body">
+        <p class="hint" style="margin-bottom:10px">Indicate which type of cash crop you have.</p>
+        <div class="repeat-table-wrap">
+          <table class="repeat-table">
+            <thead><tr><th>Cash Crop</th><th>Number of Blocks</th><th>Number of Trees</th></tr></thead>
+            <tbody id="cashCropsTableBody"></tbody>
+          </table>
+        </div>
+        <div class="field-group" style="margin-top:16px">
+          <label for="cash_crops_other">Other (specify)</label>
+          <input type="text" id="cash_crops_other" name="cash_crops_other">
+        </div>
+        <div class="field-group">
+          <label for="cash_crops_comment">Comments</label>
+          <textarea id="cash_crops_comment" name="cash_crops_comment"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION G: INFORMAL BUSINESS SECTOR ============ -->
+    <section class="section" data-section="G" id="sectionG" style="display:none">
+      <div class="section-head">
+        <span class="section-letter">G</span>
+        <h2 class="section-title">Informal Business Sector</h2>
+      </div>
+      <div class="section-body">
+        <div class="repeat-table-wrap">
+          <table class="repeat-table" id="informalTable">
+            <thead>
+              <tr>
+                <th>Name of Owner</th>
+                <th>Type of Business Activity</th>
+                <th>Year Established</th>
+                <th>Monthly Turnover (K)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="informalTableBody"></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-add-row" id="addInformalRow">+ Add business owner</button>
+        <div class="field-group" style="margin-top:16px">
+          <label for="informal_comment">Comments</label>
+          <textarea id="informal_comment" name="informal_comment"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title">Any additional notes for this household</h2>
+      </div>
+      <div class="section-body">
+        <textarea id="notes" name="notes" placeholder="Optional notes from the enumerator…"></textarea>
+      </div>
+    </section>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-secondary" id="saveDraftBtn">Save Draft</button>
+      <button type="submit" class="btn btn-primary" id="submitBtn">Submit Survey</button>
+    </div>
+  </form>
+
+  <div class="success-screen" id="successScreen" style="display:none">
+    <div class="success-icon">✓</div>
+    <h2>Survey submitted</h2>
+    <p>The household record has been saved. Thank you.</p>
+    <button class="btn btn-primary" id="newSurveyBtn">Start New Survey</button>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/constants.js"></script>
+<script src="assets/survey.js"></script>
+</body>
+</html>

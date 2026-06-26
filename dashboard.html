@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — ENB Economic & MSME Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/dashboard.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <p class="header-eyebrow">East New Britain Provincial Administration</p>
+    <h1 class="header-title">Survey Dashboard</h1>
+    <p class="header-sub">Division of Commerce &amp; Industry — collected records</p>
+    <nav class="header-nav">
+      <a href="index.html">New Survey</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+    </nav>
+  </div>
+</header>
+
+<main class="dash-main">
+
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi-card"><span class="kpi-value" id="kpiTotal">—</span><span class="kpi-label">Total surveys</span></div>
+    <div class="kpi-card"><span class="kpi-value" id="kpiFormal">—</span><span class="kpi-label">Formal businesses</span></div>
+    <div class="kpi-card"><span class="kpi-value" id="kpiInformal">—</span><span class="kpi-label">Informal businesses</span></div>
+    <div class="kpi-card"><span class="kpi-value" id="kpiNoBiz">—</span><span class="kpi-label">No business</span></div>
+    <div class="kpi-card"><span class="kpi-value" id="kpiVillages">—</span><span class="kpi-label">Villages covered</span></div>
+  </div>
+
+  <div class="dash-toolbar">
+    <div class="filter-group">
+      <label for="filterDistrict">District</label>
+      <select id="filterDistrict"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filterLlg">LLG</label>
+      <select id="filterLlg"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filterVillage">Village</label>
+      <select id="filterVillage"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filterBusiness">Business status</label>
+      <select id="filterBusiness">
+        <option value="">All</option>
+        <option value="formal">Formal</option>
+        <option value="informal">Informal</option>
+        <option value="none">No business</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="filterFrom">From</label>
+      <input type="date" id="filterFrom">
+    </div>
+    <div class="filter-group">
+      <label for="filterTo">To</label>
+      <input type="date" id="filterTo">
+    </div>
+    <div class="filter-group filter-actions">
+      <button class="btn btn-secondary" id="resetFilters">Reset</button>
+      <button class="btn btn-primary" id="exportCsv">Export CSV</button>
+    </div>
+  </div>
+
+  <section class="chart-grid">
+    <div class="chart-card">
+      <h3>Business status</h3>
+      <div id="chartBusinessStatus" class="chart-body"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Monthly turnover bands</h3>
+      <div id="chartTurnover" class="chart-body"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Top business activities</h3>
+      <div id="chartActivities" class="chart-body"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Cash crop prevalence</h3>
+      <div id="chartCashCrops" class="chart-body"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Training required</h3>
+      <div id="chartTraining" class="chart-body"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Loan access</h3>
+      <div id="chartLoans" class="chart-body"></div>
+    </div>
+  </section>
+
+  <section class="table-section">
+    <div class="table-header">
+      <h3>All survey records</h3>
+      <span class="table-count" id="tableCount"></span>
+    </div>
+    <div class="repeat-table-wrap">
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>District</th>
+            <th>LLG</th>
+            <th>Village</th>
+            <th>Ward</th>
+            <th>HH No.</th>
+            <th>Business</th>
+            <th>Business Name</th>
+            <th>Turnover Band</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="dataTableBody">
+          <tr><td colspan="10" class="empty-row">Loading records…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-backdrop" id="detailBackdrop">
+  <div class="modal" id="detailModal">
+    <button class="modal-close" id="detailClose" aria-label="Close">&times;</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/constants.js"></script>
+<script src="assets/dashboard.js"></script>
+</body>
+</html>
