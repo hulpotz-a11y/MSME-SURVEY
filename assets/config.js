@@ -12,4 +12,4 @@
    ============================================================ */
 
 const SUPABASE_URL = "https://lkkwgsbonjogyitrciwu.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxra3dnc2JvbmpvZ3lpdHJjaXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjYxMTIsImV4cCI6MjA5ODAwMjExMn0.t8J0bsxyd9ef1s56rNxRrUVmHPDhEq_wsx_rIUIMIEM";
+const SUPABASE_ANON_KEY = "sb_publishable_rrfrMvXEXsuSvAC5PlYbfw_MmPVo1Xf";
