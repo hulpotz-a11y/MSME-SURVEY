@@ -11,5 +11,5 @@
    sql/schema.sql). Never put the service_role key in this file.
    ============================================================ */
 
-const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
+const SUPABASE_URL = "https://lkkwgsbonjogyitrciwu.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_rrfrMvXEXsuSvAC5PlYbfw_MmPVo1XfY";
