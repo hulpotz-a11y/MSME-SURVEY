@@ -1,0 +1,327 @@
+/* ============================================================
+   Dashboard-specific styles (extends style.css)
+   ============================================================ */
+
+.dash-main {
+  max-width: 1180px;
+}
+
+/* ---------------- KPI row ---------------- */
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpi-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--cocoa-deep);
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ---------------- Toolbar ---------------- */
+
+.dash-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: end;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 130px;
+}
+
+.filter-group label {
+  margin-bottom: 0;
+  font-size: 11.5px;
+}
+
+.filter-group select, .filter-group input {
+  padding: 8px 10px;
+  font-size: 13.5px;
+}
+
+.filter-actions {
+  flex-direction: row;
+  gap: 10px;
+  margin-left: auto;
+  align-self: end;
+}
+
+.filter-actions .btn {
+  padding: 9px 16px;
+  font-size: 13.5px;
+}
+
+/* ---------------- Charts ---------------- */
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+@media (max-width: 800px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px 16px;
+}
+
+.chart-card h3 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+
+.chart-body {
+  min-height: 160px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+}
+
+.bar-row .bar-label {
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-track {
+  height: 14px;
+  background: var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--forest), var(--gold));
+  border-radius: 4px;
+}
+
+.bar-row .bar-value {
+  text-align: right;
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+}
+
+.chart-empty {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-style: italic;
+  padding: 30px 0;
+  text-align: center;
+}
+
+/* ---------------- Table ---------------- */
+
+.table-section {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px 10px;
+  margin-bottom: 30px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.table-header h3 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  margin: 0;
+}
+
+.table-count {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+  padding: 9px 10px;
+  border-bottom: 2px solid var(--line-strong);
+  position: sticky;
+  top: 0;
+  background: var(--paper-raised);
+}
+
+.data-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(192,138,46,0.05);
+}
+
+.empty-row {
+  text-align: center;
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 30px 0 !important;
+  white-space: normal !important;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.badge-formal { background: rgba(47,82,51,0.12); color: var(--forest-deep); }
+.badge-informal { background: rgba(192,138,46,0.15); color: var(--cocoa-deep); }
+.badge-none { background: rgba(90,79,66,0.1); color: var(--ink-soft); }
+
+.btn-view {
+  background: none;
+  border: 1.5px solid var(--line-strong);
+  color: var(--cocoa);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.btn-view:hover { border-color: var(--cocoa); }
+
+/* ---------------- Detail modal ---------------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(43,33,24,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.modal-backdrop.show { display: flex; }
+
+.modal {
+  background: var(--paper-raised);
+  border-radius: 12px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px 28px 24px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.detail-section {
+  margin-bottom: 18px;
+}
+
+.detail-section h4 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cocoa);
+  margin: 0 0 8px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  font-size: 13.5px;
+}
+
+.detail-grid .k { color: var(--ink-soft); }
+.detail-grid .v { color: var(--ink); font-weight: 600; }
+
+.detail-list {
+  font-size: 13px;
+  color: var(--ink);
+  margin: 0;
+  padding-left: 18px;
+}
