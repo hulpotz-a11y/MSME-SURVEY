@@ -150,68 +150,59 @@
     });
   }
 
-  function renderCharts() {
-    // Business status
-    const statusCounts = { Formal: 0, Informal: 0, "No business": 0 };
-    filtered.forEach((s) => {
-      const st = businessStatusOf(s);
-      statusCounts[businessStatusLabel(st)]++;
-    });
-    renderBarChart(document.getElementById("chartBusinessStatus"), statusCounts);
+  // Computes the same six breakdowns used by the on-screen charts, as plain
+  // data (label -> count maps) rather than DOM elements, so both the live
+  // dashboard charts and the printable summary report can use one source
+  // of truth instead of duplicating the counting logic.
+  function computeChartData(records) {
+    const turnoverLabelsLocal = {};
+    TURNOVER_BANDS.forEach((b) => (turnoverLabelsLocal[b.value] = b.label));
 
-    // Turnover bands
-    const turnoverLabels = {};
-    TURNOVER_BANDS.forEach((b) => (turnoverLabels[b.value] = b.label));
+    const statusCounts = { Formal: 0, Informal: 0, "No business": 0 };
     const turnoverCounts = {};
-    filtered.forEach((s) => {
+    const activityCounts = {};
+    const cropCounts = {};
+    const trainingCounts = {};
+    const loanCounts = { "Has loan access": 0, "No loan access": 0, "Not answered": 0 };
+
+    records.forEach((s) => {
+      statusCounts[businessStatusLabel(businessStatusOf(s))]++;
+
       if (s.turnover_band) {
-        const label = turnoverLabels[s.turnover_band] || s.turnover_band;
+        const label = turnoverLabelsLocal[s.turnover_band] || s.turnover_band;
         turnoverCounts[label] = (turnoverCounts[label] || 0) + 1;
       }
-    });
-    renderBarChart(document.getElementById("chartTurnover"), turnoverCounts);
-
-    // Business activities
-    const activityCounts = {};
-    filtered.forEach((s) => {
       if (s.business_activities && typeof s.business_activities === "object") {
         Object.keys(s.business_activities).forEach((k) => {
           if (s.business_activities[k]) activityCounts[k] = (activityCounts[k] || 0) + 1;
         });
       }
-    });
-    renderBarChart(document.getElementById("chartActivities"), activityCounts, { limit: 8 });
-
-    // Cash crops
-    const cropCounts = {};
-    filtered.forEach((s) => {
       if (s.cash_crops && typeof s.cash_crops === "object") {
         Object.keys(s.cash_crops).forEach((crop) => {
           cropCounts[crop] = (cropCounts[crop] || 0) + 1;
         });
       }
-    });
-    renderBarChart(document.getElementById("chartCashCrops"), cropCounts);
-
-    // Training required
-    const trainingCounts = {};
-    filtered.forEach((s) => {
       if (s.training_required && typeof s.training_required === "object") {
         Object.keys(s.training_required).forEach((t) => {
           if (s.training_required[t]) trainingCounts[t] = (trainingCounts[t] || 0) + 1;
         });
       }
-    });
-    renderBarChart(document.getElementById("chartTraining"), trainingCounts);
-
-    // Loan access
-    const loanCounts = { "Has loan access": 0, "No loan access": 0, "Not answered": 0 };
-    filtered.forEach((s) => {
       if (s.has_business_loan === true) loanCounts["Has loan access"]++;
       else if (s.has_business_loan === false) loanCounts["No loan access"]++;
       else loanCounts["Not answered"]++;
     });
-    renderBarChart(document.getElementById("chartLoans"), loanCounts);
+
+    return { statusCounts, turnoverCounts, activityCounts, cropCounts, trainingCounts, loanCounts };
+  }
+
+  function renderCharts() {
+    const data = computeChartData(filtered);
+    renderBarChart(document.getElementById("chartBusinessStatus"), data.statusCounts);
+    renderBarChart(document.getElementById("chartTurnover"), data.turnoverCounts);
+    renderBarChart(document.getElementById("chartActivities"), data.activityCounts, { limit: 8 });
+    renderBarChart(document.getElementById("chartCashCrops"), data.cropCounts);
+    renderBarChart(document.getElementById("chartTraining"), data.trainingCounts);
+    renderBarChart(document.getElementById("chartLoans"), data.loanCounts);
   }
 
   // ---------------- Table ----------------
@@ -819,6 +810,202 @@
     setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     exportPdfBtn.disabled = false;
     exportPdfBtn.textContent = originalLabel;
+  });
+
+  // ---------------- Summary report (PDF-via-print, one-page overview) ----------------
+
+  function staticBarChartHtml(dataMap, limit = 8) {
+    const entries = Object.entries(dataMap).sort((a, b) => b[1] - a[1]).slice(0, limit);
+    if (!entries.length) return `<p class="report-chart-empty">No data recorded.</p>`;
+    const max = Math.max(...entries.map((e) => e[1]));
+    return entries.map(([label, value]) => {
+      const pct = max ? Math.round((value / max) * 100) : 0;
+      return `
+        <div class="report-bar-row">
+          <span class="report-bar-label">${escapeHtml(label)}</span>
+          <span class="report-bar-track"><span class="report-bar-fill" style="width:${pct}%"></span></span>
+          <span class="report-bar-value">${value}</span>
+        </div>
+      `;
+    }).join("");
+  }
+
+  document.getElementById("exportSummary").addEventListener("click", () => {
+    if (!allSurveys.length) {
+      showToast("No records to summarise yet.", "error");
+      return;
+    }
+
+    const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    const data = computeChartData(allSurveys);
+
+    const totalCount = allSurveys.length;
+    const formalCount = allSurveys.filter((s) => businessStatusOf(s) === "formal").length;
+    const informalCount = allSurveys.filter((s) => businessStatusOf(s) === "informal").length;
+    const noBizCount = allSurveys.filter((s) => businessStatusOf(s) === "none").length;
+    const villageCount = uniqueSorted(allSurveys.map((s) => s.village)).length;
+    const districtCount = uniqueSorted(allSurveys.map((s) => s.district)).length;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="UTF-8">
+      <title>ENB Economic & MSME Survey — Summary Report</title>
+      <style>
+        @page { size: A4; margin: 16mm 14mm; }
+        * { box-sizing: border-box; }
+        body {
+          font-family: Georgia, "Times New Roman", serif;
+          color: #2B2118;
+          margin: 0;
+          padding: 0 0 30px;
+        }
+        header {
+          border-bottom: 2px solid #6B3F2A;
+          padding-bottom: 10px;
+          margin-bottom: 20px;
+        }
+        .eyebrow {
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #6B3F2A;
+          margin: 0 0 4px;
+          font-family: Arial, sans-serif;
+        }
+        h1 { font-size: 22px; margin: 0 0 4px; }
+        .meta { font-size: 11px; color: #5A4F42; font-family: Arial, sans-serif; }
+
+        .kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          margin-bottom: 24px;
+        }
+        .kpi-box {
+          border: 1px solid #CFC2A8;
+          border-radius: 8px;
+          padding: 12px 14px;
+          font-family: Arial, sans-serif;
+        }
+        .kpi-box .num { font-size: 22px; font-weight: 700; color: #6B3F2A; font-family: Georgia, serif; }
+        .kpi-box .lbl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.03em; color: #5A4F42; }
+
+        .report-section { margin-bottom: 22px; break-inside: avoid; }
+        .report-section h2 {
+          font-size: 13.5px;
+          color: #6B3F2A;
+          border-bottom: 1px solid #CFC2A8;
+          padding-bottom: 4px;
+          margin: 0 0 10px;
+        }
+
+        .report-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+
+        .report-bar-row {
+          display: grid;
+          grid-template-columns: 130px 1fr 36px;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 7px;
+          font-family: Arial, sans-serif;
+          font-size: 10.5px;
+        }
+        .report-bar-label { color: #5A4F42; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .report-bar-track { height: 11px; background: #F0E8D8; border-radius: 4px; overflow: hidden; }
+        .report-bar-fill { height: 100%; background: #6B3F2A; border-radius: 4px; }
+        .report-bar-value { text-align: right; color: #5A4F42; }
+        .report-chart-empty { font-size: 10.5px; font-style: italic; color: #5A4F42; font-family: Arial, sans-serif; }
+
+        footer {
+          margin-top: 16px;
+          font-size: 9.5px;
+          color: #5A4F42;
+          font-family: Arial, sans-serif;
+        }
+        .print-btn-row { margin-bottom: 18px; }
+        .print-btn {
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          background: #C08A2E;
+          color: #fff;
+          border: none;
+          padding: 12px 22px;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+        .print-btn:active { opacity: 0.85; }
+        @media print {
+          .print-btn-row { display: none; }
+        }
+      </style>
+      </head>
+      <body>
+        <div class="print-btn-row">
+          <button class="print-btn" onclick="window.print()">&#128424;&#65039; Print / Save as PDF</button>
+        </div>
+        <header>
+          <p class="eyebrow">East New Britain Provincial Administration — Division of Commerce &amp; Industry</p>
+          <h1>Economic &amp; MSME Survey — Summary Report</h1>
+          <p class="meta">Generated ${today} &nbsp;•&nbsp; ${totalCount} household${totalCount === 1 ? "" : "s"} recorded across ${districtCount} district${districtCount === 1 ? "" : "s"} and ${villageCount} village${villageCount === 1 ? "" : "s"}</p>
+        </header>
+
+        <div class="kpi-grid">
+          <div class="kpi-box"><div class="num">${totalCount}</div><div class="lbl">Total Households</div></div>
+          <div class="kpi-box"><div class="num">${formalCount}</div><div class="lbl">Formal Businesses</div></div>
+          <div class="kpi-box"><div class="num">${informalCount}</div><div class="lbl">Informal Businesses</div></div>
+          <div class="kpi-box"><div class="num">${noBizCount}</div><div class="lbl">No Business</div></div>
+          <div class="kpi-box"><div class="num">${villageCount}</div><div class="lbl">Villages Covered</div></div>
+          <div class="kpi-box"><div class="num">${districtCount}</div><div class="lbl">Districts Covered</div></div>
+        </div>
+
+        <div class="report-grid-2">
+          <div class="report-section">
+            <h2>Business Status</h2>
+            ${staticBarChartHtml(data.statusCounts)}
+          </div>
+          <div class="report-section">
+            <h2>Monthly Turnover Bands</h2>
+            ${staticBarChartHtml(data.turnoverCounts)}
+          </div>
+          <div class="report-section">
+            <h2>Top Business Activities</h2>
+            ${staticBarChartHtml(data.activityCounts, 8)}
+          </div>
+          <div class="report-section">
+            <h2>Cash Crop Prevalence</h2>
+            ${staticBarChartHtml(data.cropCounts)}
+          </div>
+          <div class="report-section">
+            <h2>Training Required</h2>
+            ${staticBarChartHtml(data.trainingCounts)}
+          </div>
+          <div class="report-section">
+            <h2>Loan Access</h2>
+            ${staticBarChartHtml(data.loanCounts)}
+          </div>
+        </div>
+
+        <footer>Generated from the ENB Economic &amp; MSME Survey digital tool. This summary reflects all households recorded in the database at the time of generation, regardless of any filters applied on the dashboard.</footer>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([html], { type: "text/html" });
+    const blobUrl = URL.createObjectURL(blob);
+    const reportWindow = window.open(blobUrl, "_blank");
+    if (!reportWindow) {
+      showToast("Pop-up was blocked — opening the report in this tab instead.", "error");
+      window.location.href = blobUrl;
+      return;
+    }
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
   });
 
   // ---------------- Connection settings link ----------------
