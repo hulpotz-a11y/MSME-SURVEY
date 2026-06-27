@@ -385,6 +385,161 @@
     showToast(`Exported ${filtered.length} record${filtered.length === 1 ? "" : "s"} to CSV.`, "success");
   });
 
+  // ---------------- PDF export (print-friendly HTML in a new tab) ----------------
+  function escapeHtml(v) {
+    if (v === null || v === undefined) return "";
+    return String(v)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  document.getElementById("exportPdf").addEventListener("click", () => {
+    if (!allSurveys.length) {
+      showToast("No records to export yet.", "error");
+      return;
+    }
+
+    const turnoverLabels = {};
+    TURNOVER_BANDS.forEach((b) => (turnoverLabels[b.value] = b.label));
+
+    const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+    const rows = allSurveys.map((s) => {
+      const status = businessStatusOf(s);
+      return `
+        <tr>
+          <td>${escapeHtml(s.date_collected) || "—"}</td>
+          <td>${escapeHtml(s.district) || "—"}</td>
+          <td>${escapeHtml(s.llg) || "—"}</td>
+          <td>${escapeHtml(s.village) || "—"}</td>
+          <td>${escapeHtml(s.ward) || "—"}</td>
+          <td>${escapeHtml(s.household_no) || "—"}</td>
+          <td>${businessStatusLabel(status)}</td>
+          <td>${escapeHtml(s.business_name) || "—"}</td>
+          <td>${escapeHtml(turnoverLabels[s.turnover_band]) || "—"}</td>
+        </tr>
+      `;
+    }).join("");
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="UTF-8">
+      <title>ENB Economic & MSME Survey — Records Export</title>
+      <style>
+        @page { size: A4 landscape; margin: 14mm 12mm; }
+        * { box-sizing: border-box; }
+        body {
+          font-family: Georgia, "Times New Roman", serif;
+          color: #2B2118;
+          margin: 0;
+          padding: 0 0 30px;
+        }
+        header {
+          border-bottom: 2px solid #6B3F2A;
+          padding-bottom: 10px;
+          margin-bottom: 16px;
+        }
+        .eyebrow {
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #6B3F2A;
+          margin: 0 0 4px;
+          font-family: Arial, sans-serif;
+        }
+        h1 {
+          font-size: 20px;
+          margin: 0 0 4px;
+        }
+        .meta {
+          font-size: 11px;
+          color: #5A4F42;
+          font-family: Arial, sans-serif;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 10.5px;
+          font-family: Arial, sans-serif;
+        }
+        thead { display: table-header-group; } /* repeat header on each printed page */
+        tr { break-inside: avoid; }
+        th, td {
+          border: 1px solid #CFC2A8;
+          padding: 5px 7px;
+          text-align: left;
+        }
+        th {
+          background: #F6EFE2;
+          font-size: 9.5px;
+          text-transform: uppercase;
+          letter-spacing: 0.02em;
+        }
+        tbody tr:nth-child(even) { background: #FBF7EF; }
+        footer {
+          margin-top: 16px;
+          font-size: 9.5px;
+          color: #5A4F42;
+          font-family: Arial, sans-serif;
+        }
+        .print-hint {
+          font-family: Arial, sans-serif;
+          font-size: 12px;
+          background: #2F5233;
+          color: #fff;
+          padding: 10px 14px;
+          border-radius: 8px;
+          margin-bottom: 16px;
+        }
+        @media print {
+          .print-hint { display: none; }
+        }
+      </style>
+      </head>
+      <body>
+        <div class="print-hint">To save as PDF: use your browser's Print option (Ctrl/Cmd+P), then choose "Save as PDF" as the destination.</div>
+        <header>
+          <p class="eyebrow">East New Britain Provincial Administration — Division of Commerce &amp; Industry</p>
+          <h1>Economic &amp; MSME Survey — All Records</h1>
+          <p class="meta">Exported ${today} &nbsp;•&nbsp; ${allSurveys.length} record${allSurveys.length === 1 ? "" : "s"} total</p>
+        </header>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>District</th>
+              <th>LLG</th>
+              <th>Village</th>
+              <th>Ward</th>
+              <th>HH No.</th>
+              <th>Business</th>
+              <th>Business Name</th>
+              <th>Turnover Band</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+        <footer>Generated from the ENB Economic &amp; MSME Survey digital tool.</footer>
+      </body>
+      </html>
+    `;
+
+    const reportWindow = window.open("", "_blank");
+    if (!reportWindow) {
+      showToast("Could not open a new tab — check your browser's pop-up blocker.", "error");
+      return;
+    }
+    reportWindow.document.open();
+    reportWindow.document.write(html);
+    reportWindow.document.close();
+  });
+
   // ---------------- Connection settings link ----------------
   const changeConnLink = document.getElementById("changeConnectionLink");
   if (changeConnLink) {
