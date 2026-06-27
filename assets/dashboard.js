@@ -5,16 +5,9 @@
 (function () {
   "use strict";
 
-  let supabase = null;
-  try {
-    if (window.supabase && typeof window.supabase.createClient === "function") {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } else {
-      console.error("Supabase library did not load — dashboard cannot fetch data until this is fixed.");
-    }
-  } catch (err) {
-    console.error("Could not initialise Supabase client:", err);
-  }
+  // See assets/connection.js — credentials are saved per-device via
+  // localStorage instead of being hardcoded into this file.
+  let supabase = window.ENBConnection.getClient();
 
   let allSurveys = [];
   let filtered = [];
@@ -41,8 +34,10 @@
   // ---------------- Fetch ----------------
   async function loadData() {
     if (!supabase) {
-      document.getElementById("dataTableBody").innerHTML =
-        `<tr><td colspan="10" class="empty-row">Database connection isn't set up. Check assets/config.js.</td></tr>`;
+      window.ENBConnection.showSetupScreen((client) => {
+        supabase = client;
+        loadData();
+      });
       return;
     }
 
@@ -389,6 +384,19 @@
     URL.revokeObjectURL(url);
     showToast(`Exported ${filtered.length} record${filtered.length === 1 ? "" : "s"} to CSV.`, "success");
   });
+
+  // ---------------- Connection settings link ----------------
+  const changeConnLink = document.getElementById("changeConnectionLink");
+  if (changeConnLink) {
+    changeConnLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.ENBConnection.showSetupScreen((client) => {
+        supabase = client;
+        showToast("Connection updated.", "success");
+        loadData();
+      });
+    });
+  }
 
   // ---------------- init ----------------
   loadData();

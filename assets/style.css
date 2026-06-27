@@ -582,3 +582,77 @@ fieldset { border: none; padding: 0; margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---------------- Connection setup overlay ---------------- */
+
+.conn-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--paper);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+
+.conn-card {
+  max-width: 440px;
+  width: 100%;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(43,33,24,0.12);
+  padding: 28px 26px 24px;
+}
+
+.conn-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 4px 0 8px;
+  color: var(--ink);
+}
+
+.conn-sub {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.conn-error {
+  background: rgba(161,61,43,0.08);
+  border: 1px solid rgba(161,61,43,0.25);
+  color: var(--danger);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin: 4px 0 16px;
+}
+
+.conn-btn-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.conn-btn-row .btn {
+  width: 100%;
+}
+
+.conn-footer-link {
+  text-align: center;
+  margin-top: 18px;
+}
+
+.conn-footer-link button {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px;
+}

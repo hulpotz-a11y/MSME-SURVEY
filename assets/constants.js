@@ -2,6 +2,8 @@
    ENB Economic & MSME Survey — shared constants
    ============================================================ */
 
+const ENB_DISTRICTS = ["Kokopo", "Rabaul", "Gazelle", "Pomio"];
+
 const BUSINESS_ACTIVITIES = {
   "Trade & Services": [
     "Trade store", "Wholesale", "Fast food outlet", "Second hand clothing shop",

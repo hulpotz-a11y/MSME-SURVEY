@@ -5,16 +5,12 @@
 (function () {
   "use strict";
 
-  let supabase = null;
-  try {
-    if (window.supabase && typeof window.supabase.createClient === "function") {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } else {
-      console.error("Supabase library did not load — submissions will fail until this is fixed.");
-    }
-  } catch (err) {
-    console.error("Could not initialise Supabase client:", err);
-  }
+  // The Supabase client is obtained from the connection manager (assets/connection.js),
+  // which reads credentials saved on this device via localStorage rather than
+  // from a hardcoded file. If this device hasn't been connected yet, `supabase`
+  // stays null until the person fills in the setup screen — which we only force
+  // at the point of submitting, so they can fill out the form first either way.
+  let supabase = window.ENBConnection.getClient();
 
   const form = document.getElementById("surveyForm");
   const toastEl = document.getElementById("toast");
@@ -578,21 +574,7 @@
   // ---------------- Submit ----------------
   const submitBtn = document.getElementById("submitBtn");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    if (!validate()) {
-      showToast("Please fill in the required fields highlighted in red.", "error");
-      const firstError = form.querySelector(".field-error");
-      if (firstError) firstError.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    if (!supabase) {
-      showToast("Connection to the database isn't set up. Check assets/config.js.", "error");
-      return;
-    }
-
+  async function doSubmit() {
     submitBtn.disabled = true;
     submitBtn.textContent = "Submitting…";
 
@@ -633,11 +615,47 @@
       submitBtn.disabled = false;
       submitBtn.textContent = "Submit Survey";
     }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (!validate()) {
+      showToast("Please fill in the required fields highlighted in red.", "error");
+      const firstError = form.querySelector(".field-error");
+      if (firstError) firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    if (!supabase) {
+      // Not connected on this device yet — show the one-time setup screen,
+      // then continue straight to submitting once it succeeds, so the
+      // person doesn't lose the form they just filled in.
+      window.ENBConnection.showSetupScreen((client) => {
+        supabase = client;
+        doSubmit();
+      });
+      return;
+    }
+
+    doSubmit();
   });
 
   document.getElementById("newSurveyBtn").addEventListener("click", () => {
     window.location.reload();
   });
+
+  // ---------------- Connection settings link ----------------
+  const changeConnLink = document.getElementById("changeConnectionLink");
+  if (changeConnLink) {
+    changeConnLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.ENBConnection.showSetupScreen((client) => {
+        supabase = client;
+        showToast("Connection updated.", "success");
+      });
+    });
+  }
 
   // ---------------- init ----------------
   applyBranching();
