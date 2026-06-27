@@ -18,6 +18,7 @@
     <nav class="header-nav">
       <a href="index.html" class="active">New Survey</a>
       <a href="dashboard.html">Dashboard</a>
+      <a href="#" id="changeConnectionLink">Connection</a>
     </nav>
   </div>
 </header>
@@ -45,8 +46,14 @@
         <div class="field-row">
           <div class="field-group">
             <label for="district">District <span class="required-mark">*</span></label>
-            <input type="text" id="district" name="district" required placeholder="e.g. Kokopo">
-            <p class="error-text">Please enter the district.</p>
+            <select id="district" name="district" required>
+              <option value="">Select district…</option>
+              <option value="Kokopo">Kokopo</option>
+              <option value="Rabaul">Rabaul</option>
+              <option value="Gazelle">Gazelle</option>
+              <option value="Pomio">Pomio</option>
+            </select>
+            <p class="error-text">Please select a district.</p>
           </div>
           <div class="field-group">
             <label for="llg">LLG <span class="required-mark">*</span></label>
@@ -461,7 +468,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="assets/config.js"></script>
+<script src="assets/connection.js"></script>
 <script src="assets/constants.js"></script>
 <script src="assets/survey.js"></script>
 </body>
