@@ -486,22 +486,30 @@
           color: #5A4F42;
           font-family: Arial, sans-serif;
         }
-        .print-hint {
-          font-family: Arial, sans-serif;
-          font-size: 12px;
-          background: #2F5233;
-          color: #fff;
-          padding: 10px 14px;
-          border-radius: 8px;
-          margin-bottom: 16px;
+        .print-btn-row {
+          margin-bottom: 18px;
         }
+        .print-btn {
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          background: #C08A2E;
+          color: #fff;
+          border: none;
+          padding: 12px 22px;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+        .print-btn:active { opacity: 0.85; }
         @media print {
-          .print-hint { display: none; }
+          .print-btn-row { display: none; }
         }
       </style>
       </head>
       <body>
-        <div class="print-hint">To save as PDF: use your browser's Print option (Ctrl/Cmd+P), then choose "Save as PDF" as the destination.</div>
+        <div class="print-btn-row">
+          <button class="print-btn" onclick="window.print()">&#128424;&#65039; Print / Save as PDF</button>
+        </div>
         <header>
           <p class="eyebrow">East New Britain Provincial Administration — Division of Commerce &amp; Industry</p>
           <h1>Economic &amp; MSME Survey — All Records</h1>
@@ -530,14 +538,20 @@
       </html>
     `;
 
-    const reportWindow = window.open("", "_blank");
+    const blob = new Blob([html], { type: "text/html" });
+    const blobUrl = URL.createObjectURL(blob);
+
+    const reportWindow = window.open(blobUrl, "_blank");
     if (!reportWindow) {
-      showToast("Could not open a new tab — check your browser's pop-up blocker.", "error");
+      // Fall back to a direct navigation if the browser blocked window.open
+      // entirely (common on some mobile browsers) — at least get the report
+      // open somehow rather than failing silently.
+      showToast("Pop-up was blocked — opening the report in this tab instead.", "error");
+      window.location.href = blobUrl;
       return;
     }
-    reportWindow.document.open();
-    reportWindow.document.write(html);
-    reportWindow.document.close();
+    // Release the blob URL once the new tab has had a chance to load it.
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
   });
 
   // ---------------- Connection settings link ----------------
