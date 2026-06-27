@@ -656,3 +656,24 @@ fieldset { border: none; padding: 0; margin: 0; }
   cursor: pointer;
   padding: 4px;
 }
+
+/* ---------------- Page footer (quiet, low-emphasis utility links) ---------------- */
+
+.page-footer {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+  text-align: center;
+}
+
+.page-footer a {
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+.page-footer a:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
