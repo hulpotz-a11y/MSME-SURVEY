@@ -340,7 +340,44 @@
       </div>
 
       ${survey.notes ? `<div class="detail-section"><h4>Notes</h4><p>${survey.notes}</p></div>` : ""}
+
+      <div class="detail-section detail-danger-zone">
+        <button class="btn-delete" id="deleteSurveyBtn" data-id="${survey.id}">Delete this record</button>
+        <p class="hint">This permanently removes the record — there's no undo.</p>
+      </div>
     `;
+
+    const deleteBtn = document.getElementById("deleteSurveyBtn");
+    deleteBtn.addEventListener("click", () => handleDeleteSurvey(survey));
+  }
+
+  async function handleDeleteSurvey(survey) {
+    const label = survey.household_no
+      ? `Household No. ${survey.household_no}`
+      : (survey.village || "this record");
+    const confirmed = window.confirm(
+      `Delete ${label} permanently? This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    const deleteBtn = document.getElementById("deleteSurveyBtn");
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = "Deleting…";
+
+    try {
+      const { error } = await supabase.from("surveys").delete().eq("id", survey.id);
+      if (error) throw error;
+
+      backdrop.classList.remove("show");
+      allSurveys = allSurveys.filter((s) => s.id !== survey.id);
+      applyFilters(); // re-renders KPIs, charts, and the table from the updated allSurveys
+      showToast("Record deleted.", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Could not delete: " + (err.message || "unknown error") + ". If this persists, check that the delete permission was added in Supabase (see sql/migration_add_delete.sql).", "error");
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = "Delete this record";
+    }
   }
 
   document.getElementById("detailClose").addEventListener("click", () => backdrop.classList.remove("show"));
