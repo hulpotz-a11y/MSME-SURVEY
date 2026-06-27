@@ -356,6 +356,35 @@
   backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.classList.remove("show"); });
 
   // ---------------- CSV export ----------------
+
+  // Maps each database column back to the lettered section it belongs to in
+  // the original paper form (A-G), so the exported CSV's headers show their
+  // origin without breaking the flat row/column structure CSV needs to stay
+  // usable in Excel/Sheets (filtering, sorting, pivoting).
+  const COLUMN_SECTION_MAP = {
+    id: "META", created_at: "META",
+    district: "A", llg: "A", village: "A", ward: "A", household_no: "A",
+    date_collected: "A", contact_person: "A", contact_mobile: "A", postal_address: "A",
+    num_employed_family: "B", num_unemployed_qualified_comments: "B", has_business: "B", business_sector: "B",
+    business_activities: "C", business_activity_other: "C", business_name: "C", business_date_commenced: "C",
+    business_owner: "C", other_business_location: "C", ipa_registered: "C", ipa_registration_forms: "C",
+    licenses: "C", licenses_comment: "C", has_business_loan: "C", loans: "C", no_loan_reasons: "C",
+    training_attended: "D", training_required: "D", training_other: "D",
+    assistance_required: "D", assistance_other: "D", section_d_comment: "D",
+    num_casuals: "E", casuals_years_employed: "E", num_permanent: "E", permanent_years_employed: "E",
+    wages_casual_fortnightly: "E", wages_permanent_fortnightly: "E", turnover_band: "E", turnover_amount: "E",
+    expenses_band: "E", expenses_amount: "E", initial_capital: "E", value_of_assets: "E",
+    other_investments: "E", other_investments_specify: "E",
+    cash_crops: "F", cash_crops_comment: "F",
+    informal_business_owners: "G", informal_comment: "G",
+    notes: "META"
+  };
+
+  function sectionedHeader(column) {
+    const section = COLUMN_SECTION_MAP[column];
+    return section && section !== "META" ? `${section}_${column}` : column;
+  }
+
   function toCsvValue(v) {
     if (v === null || v === undefined) return "";
     if (typeof v === "object") v = JSON.stringify(v);
@@ -369,7 +398,7 @@
       return;
     }
     const columns = Object.keys(filtered[0]);
-    const rows = [columns.join(",")];
+    const rows = [columns.map(sectionedHeader).join(",")];
     filtered.forEach((s) => {
       rows.push(columns.map((c) => toCsvValue(s[c])).join(","));
     });
@@ -395,31 +424,223 @@
       .replace(/"/g, "&quot;");
   }
 
-  document.getElementById("exportPdf").addEventListener("click", () => {
+  function checkedKeysInline(obj) {
+    if (!obj || typeof obj !== "object") return "—";
+    const keys = Object.keys(obj).filter((k) => obj[k]);
+    return keys.length ? keys.map(escapeHtml).join(", ") : "—";
+  }
+
+  function fieldRow(label, value) {
+    if (value === null || value === undefined || value === "") return "";
+    return `<div class="field"><span class="field-label">${escapeHtml(label)}</span><span class="field-value">${value}</span></div>`;
+  }
+
+  const exportPdfBtn = document.getElementById("exportPdf");
+
+  exportPdfBtn.addEventListener("click", async () => {
     if (!allSurveys.length) {
       showToast("No records to export yet.", "error");
       return;
     }
+    if (!supabase) {
+      showToast("Not connected — set up the connection first.", "error");
+      return;
+    }
+
+    const originalLabel = exportPdfBtn.textContent;
+    exportPdfBtn.disabled = true;
+    exportPdfBtn.textContent = "Preparing report…";
+
+    // Fetch every household's employed/unemployed family member rows up
+    // front in two bulk queries (rather than one query per household) so
+    // Section B can be filled in for each household block below.
+    let employedByHousehold = {};
+    let unemployedByHousehold = {};
+    try {
+      const surveyIds = allSurveys.map((s) => s.id);
+      const [employedRes, unemployedRes] = await Promise.all([
+        supabase.from("employed_family_members").select("*").in("survey_id", surveyIds),
+        supabase.from("unemployed_qualified_members").select("*").in("survey_id", surveyIds)
+      ]);
+      (employedRes.data || []).forEach((row) => {
+        (employedByHousehold[row.survey_id] = employedByHousehold[row.survey_id] || []).push(row);
+      });
+      (unemployedRes.data || []).forEach((row) => {
+        (unemployedByHousehold[row.survey_id] = unemployedByHousehold[row.survey_id] || []).push(row);
+      });
+    } catch (e) {
+      console.error("Could not load family member detail tables for export:", e);
+      // Continue without them rather than blocking the whole export — those
+      // sub-tables will just show as empty further down.
+    }
 
     const turnoverLabels = {};
     TURNOVER_BANDS.forEach((b) => (turnoverLabels[b.value] = b.label));
+    const expensesLabels = {};
+    EXPENSES_BANDS.forEach((b) => (expensesLabels[b.value] = b.label));
 
     const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-    const rows = allSurveys.map((s) => {
+    const householdBlocks = allSurveys.map((s, idx) => {
       const status = businessStatusOf(s);
+      const employed = employedByHousehold[s.id] || [];
+      const unemployed = unemployedByHousehold[s.id] || [];
+
+      const employedRowsHtml = employed.length
+        ? employed.map((e) => `
+            <tr>
+              <td>${escapeHtml(e.name) || "—"}</td>
+              <td>${escapeHtml(e.highest_qualification) || "—"}</td>
+              <td>${escapeHtml(e.institution) || "—"}</td>
+              <td>${escapeHtml(e.year_graduated) || "—"}</td>
+              <td>${escapeHtml(e.employer_location) || "—"}</td>
+              <td>${e.gross_monthly_pay !== null && e.gross_monthly_pay !== undefined ? "K" + escapeHtml(e.gross_monthly_pay) : "—"}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="6" class="empty-cell">None recorded</td></tr>`;
+
+      const unemployedRowsHtml = unemployed.length
+        ? unemployed.map((e) => `
+            <tr>
+              <td>${escapeHtml(e.name) || "—"}</td>
+              <td>${escapeHtml(e.highest_qualification) || "—"}</td>
+              <td>${escapeHtml(e.institution) || "—"}</td>
+              <td>${escapeHtml(e.year_graduated) || "—"}</td>
+              <td>${escapeHtml(e.comments) || "—"}</td>
+            </tr>
+          `).join("")
+        : `<tr><td colspan="5" class="empty-cell">None recorded</td></tr>`;
+
+      const licensesHtml = Array.isArray(s.licenses) && s.licenses.length
+        ? s.licenses.map((l) => escapeHtml(l.type) + (l.tick ? "" : " (not held)")).join(", ")
+        : "—";
+
+      const loansHtml = Array.isArray(s.loans) && s.loans.length
+        ? s.loans.map((l) => `${escapeHtml(l.institution) || "—"} — K${escapeHtml(l.amount) || "0"}`).join("; ")
+        : "—";
+
+      const cashCropsHtml = s.cash_crops && Object.keys(s.cash_crops).length
+        ? Object.entries(s.cash_crops).map(([crop, v]) =>
+            `${escapeHtml(crop)}${v && (v.blocks || v.trees) ? ` (${v.blocks || 0} blocks, ${v.trees || 0} trees)` : ""}`
+          ).join(", ")
+        : "—";
+
+      const informalOwnersHtml = Array.isArray(s.informal_business_owners) && s.informal_business_owners.length
+        ? s.informal_business_owners.map((o) =>
+            `${escapeHtml(o.name) || "—"} (${escapeHtml(o.activity_type) || "—"}, est. ${escapeHtml(o.year_established) || "—"}, K${escapeHtml(o.monthly_turnover) || "0"}/mo)`
+          ).join("; ")
+        : "—";
+
+      const showCDE = status === "formal";
+      const showG = status === "informal";
+
       return `
-        <tr>
-          <td>${escapeHtml(s.date_collected) || "—"}</td>
-          <td>${escapeHtml(s.district) || "—"}</td>
-          <td>${escapeHtml(s.llg) || "—"}</td>
-          <td>${escapeHtml(s.village) || "—"}</td>
-          <td>${escapeHtml(s.ward) || "—"}</td>
-          <td>${escapeHtml(s.household_no) || "—"}</td>
-          <td>${businessStatusLabel(status)}</td>
-          <td>${escapeHtml(s.business_name) || "—"}</td>
-          <td>${escapeHtml(turnoverLabels[s.turnover_band]) || "—"}</td>
-        </tr>
+        <section class="household ${idx > 0 ? "page-break" : ""}">
+          <div class="household-title">
+            <h2>Household ${idx + 1}${s.household_no ? " — No. " + escapeHtml(s.household_no) : ""}</h2>
+            <span class="badge-status">${businessStatusLabel(status)}</span>
+          </div>
+
+          <div class="section-block">
+            <h3>A) Location</h3>
+            <div class="field-grid">
+              ${fieldRow("District", escapeHtml(s.district))}
+              ${fieldRow("LLG", escapeHtml(s.llg))}
+              ${fieldRow("Village", escapeHtml(s.village))}
+              ${fieldRow("Ward", escapeHtml(s.ward))}
+              ${fieldRow("Household No.", escapeHtml(s.household_no))}
+              ${fieldRow("Date Collected", escapeHtml(s.date_collected))}
+              ${fieldRow("Contact Person", escapeHtml(s.contact_person))}
+              ${fieldRow("Mobile", escapeHtml(s.contact_mobile))}
+              ${fieldRow("Postal Address", escapeHtml(s.postal_address))}
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>B) Employment &amp; Education Information</h3>
+            <div class="field-grid">
+              ${fieldRow("Family members formally employed", s.num_employed_family)}
+              ${fieldRow("Runs a business?", businessStatusLabel(status))}
+            </div>
+            <p class="sub-label">Table 1 — Employed Family Members</p>
+            <table class="mini-table">
+              <thead><tr><th>Name</th><th>Qualification</th><th>Institution</th><th>Year</th><th>Employer &amp; Location</th><th>Monthly Pay</th></tr></thead>
+              <tbody>${employedRowsHtml}</tbody>
+            </table>
+            <p class="sub-label">Table 2 — Unemployed Qualified Family Members</p>
+            <table class="mini-table">
+              <thead><tr><th>Name</th><th>Qualification</th><th>Institution</th><th>Year</th><th>Comments</th></tr></thead>
+              <tbody>${unemployedRowsHtml}</tbody>
+            </table>
+          </div>
+
+          ${showCDE ? `
+          <div class="section-block">
+            <h3>C) Business Background Information</h3>
+            <div class="field-grid">
+              ${fieldRow("Business Activities", checkedKeysInline(s.business_activities))}
+              ${fieldRow("Other Activity", escapeHtml(s.business_activity_other))}
+              ${fieldRow("Business Name", escapeHtml(s.business_name))}
+              ${fieldRow("Date Commenced", escapeHtml(s.business_date_commenced))}
+              ${fieldRow("Business Owner", escapeHtml(s.business_owner))}
+              ${fieldRow("Other Business Location", escapeHtml(s.other_business_location))}
+              ${fieldRow("IPA Registered", s.ipa_registered === true ? "Yes" : s.ipa_registered === false ? "No" : "—")}
+              ${fieldRow("Licenses", licensesHtml)}
+              ${fieldRow("Has Business Loan", s.has_business_loan === true ? "Yes" : s.has_business_loan === false ? "No" : "—")}
+              ${fieldRow("Loans", loansHtml)}
+              ${fieldRow("Reasons (no loan)", escapeHtml(s.no_loan_reasons))}
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>D) Business Development Assistance</h3>
+            <div class="field-grid">
+              ${fieldRow("Training Required", checkedKeysInline(s.training_required))}
+              ${fieldRow("Other Training", escapeHtml(s.training_other))}
+              ${fieldRow("Assistance Required", checkedKeysInline(s.assistance_required))}
+              ${fieldRow("Other Assistance", escapeHtml(s.assistance_other))}
+              ${fieldRow("Comment", escapeHtml(s.section_d_comment))}
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>E) Economic Output Development</h3>
+            <div class="field-grid">
+              ${fieldRow("No. of Casuals", s.num_casuals)}
+              ${fieldRow("Years Employed (Casuals)", s.casuals_years_employed)}
+              ${fieldRow("No. of Permanent", s.num_permanent)}
+              ${fieldRow("Years Employed (Permanent)", s.permanent_years_employed)}
+              ${fieldRow("Fortnightly Wages (Casual)", s.wages_casual_fortnightly !== null ? "K" + escapeHtml(s.wages_casual_fortnightly) : null)}
+              ${fieldRow("Fortnightly Wages (Permanent)", s.wages_permanent_fortnightly !== null ? "K" + escapeHtml(s.wages_permanent_fortnightly) : null)}
+              ${fieldRow("Monthly Turnover", escapeHtml(turnoverLabels[s.turnover_band]))}
+              ${fieldRow("Monthly Expenses", escapeHtml(expensesLabels[s.expenses_band]))}
+              ${fieldRow("Initial Capital", s.initial_capital !== null ? "K" + escapeHtml(s.initial_capital) : null)}
+              ${fieldRow("Value of Assets", s.value_of_assets !== null ? "K" + escapeHtml(s.value_of_assets) : null)}
+              ${fieldRow("Other Investments", s.other_investments !== null ? "K" + escapeHtml(s.other_investments) : null)}
+            </div>
+          </div>
+          ` : ""}
+
+          <div class="section-block">
+            <h3>F) Cash Crops</h3>
+            <div class="field-grid">
+              ${fieldRow("Cash Crops", cashCropsHtml)}
+              ${fieldRow("Comment", escapeHtml(s.cash_crops_comment))}
+            </div>
+          </div>
+
+          ${showG ? `
+          <div class="section-block">
+            <h3>G) Informal Business Sector</h3>
+            <div class="field-grid">
+              ${fieldRow("Business Owners", informalOwnersHtml)}
+              ${fieldRow("Comment", escapeHtml(s.informal_comment))}
+            </div>
+          </div>
+          ` : ""}
+
+          ${s.notes ? `<div class="section-block"><h3>Notes</h3><p>${escapeHtml(s.notes)}</p></div>` : ""}
+        </section>
       `;
     }).join("");
 
@@ -430,7 +651,7 @@
       <meta charset="UTF-8">
       <title>ENB Economic & MSME Survey — Records Export</title>
       <style>
-        @page { size: A4 landscape; margin: 14mm 12mm; }
+        @page { size: A4; margin: 14mm 12mm; }
         * { box-sizing: border-box; }
         body {
           font-family: Georgia, "Times New Roman", serif;
@@ -441,7 +662,7 @@
         header {
           border-bottom: 2px solid #6B3F2A;
           padding-bottom: 10px;
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
         .eyebrow {
           font-size: 10px;
@@ -451,44 +672,103 @@
           margin: 0 0 4px;
           font-family: Arial, sans-serif;
         }
-        h1 {
-          font-size: 20px;
-          margin: 0 0 4px;
+        h1 { font-size: 20px; margin: 0 0 4px; }
+        .meta { font-size: 11px; color: #5A4F42; font-family: Arial, sans-serif; }
+
+        .household { margin-bottom: 26px; }
+        .page-break { break-before: page; page-break-before: always; }
+
+        .household-title {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          border-bottom: 1.5px solid #6B3F2A;
+          padding-bottom: 6px;
+          margin-bottom: 12px;
         }
-        .meta {
-          font-size: 11px;
-          color: #5A4F42;
+        .household-title h2 {
+          font-size: 16px;
+          margin: 0;
+        }
+        .badge-status {
           font-family: Arial, sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          background: #F6EFE2;
+          color: #6B3F2A;
+          padding: 3px 10px;
+          border-radius: 999px;
         }
-        table {
+
+        .section-block {
+          margin-bottom: 14px;
+          break-inside: avoid;
+        }
+        .section-block h3 {
+          font-size: 12.5px;
+          margin: 0 0 6px;
+          color: #6B3F2A;
+          border-bottom: 1px solid #CFC2A8;
+          padding-bottom: 3px;
+        }
+
+        .field-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4px 16px;
+          font-family: Arial, sans-serif;
+          font-size: 10.5px;
+        }
+        .field { display: flex; flex-direction: column; gap: 1px; }
+        .field-label {
+          font-size: 8.5px;
+          text-transform: uppercase;
+          letter-spacing: 0.02em;
+          color: #5A4F42;
+        }
+        .field-value { color: #2B2118; }
+
+        .sub-label {
+          font-family: Arial, sans-serif;
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #5A4F42;
+          margin: 8px 0 4px;
+        }
+
+        .mini-table, table {
           width: 100%;
           border-collapse: collapse;
-          font-size: 10.5px;
+          font-size: 9.5px;
           font-family: Arial, sans-serif;
+          margin-bottom: 4px;
         }
-        thead { display: table-header-group; } /* repeat header on each printed page */
+        thead { display: table-header-group; }
         tr { break-inside: avoid; }
         th, td {
           border: 1px solid #CFC2A8;
-          padding: 5px 7px;
+          padding: 4px 6px;
           text-align: left;
         }
         th {
           background: #F6EFE2;
-          font-size: 9.5px;
+          font-size: 8.5px;
           text-transform: uppercase;
-          letter-spacing: 0.02em;
         }
-        tbody tr:nth-child(even) { background: #FBF7EF; }
+        .empty-cell {
+          color: #5A4F42;
+          font-style: italic;
+          text-align: center;
+        }
+
         footer {
           margin-top: 16px;
           font-size: 9.5px;
           color: #5A4F42;
           font-family: Arial, sans-serif;
         }
-        .print-btn-row {
-          margin-bottom: 18px;
-        }
+        .print-btn-row { margin-bottom: 18px; }
         .print-btn {
           font-family: Arial, sans-serif;
           font-size: 14px;
@@ -513,26 +793,9 @@
         <header>
           <p class="eyebrow">East New Britain Provincial Administration — Division of Commerce &amp; Industry</p>
           <h1>Economic &amp; MSME Survey — All Records</h1>
-          <p class="meta">Exported ${today} &nbsp;•&nbsp; ${allSurveys.length} record${allSurveys.length === 1 ? "" : "s"} total</p>
+          <p class="meta">Exported ${today} &nbsp;•&nbsp; ${allSurveys.length} household${allSurveys.length === 1 ? "" : "s"} total</p>
         </header>
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>District</th>
-              <th>LLG</th>
-              <th>Village</th>
-              <th>Ward</th>
-              <th>HH No.</th>
-              <th>Business</th>
-              <th>Business Name</th>
-              <th>Turnover Band</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
+        ${householdBlocks}
         <footer>Generated from the ENB Economic &amp; MSME Survey digital tool.</footer>
       </body>
       </html>
@@ -548,10 +811,14 @@
       // open somehow rather than failing silently.
       showToast("Pop-up was blocked — opening the report in this tab instead.", "error");
       window.location.href = blobUrl;
+      exportPdfBtn.disabled = false;
+      exportPdfBtn.textContent = originalLabel;
       return;
     }
     // Release the blob URL once the new tab has had a chance to load it.
     setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    exportPdfBtn.disabled = false;
+    exportPdfBtn.textContent = originalLabel;
   });
 
   // ---------------- Connection settings link ----------------
