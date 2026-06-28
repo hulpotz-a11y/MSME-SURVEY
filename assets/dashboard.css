@@ -221,7 +221,7 @@
 }
 
 .data-table tbody tr:hover {
-  background: rgba(192,138,46,0.05);
+  background: rgba(201,154,30,0.06);
 }
 
 .empty-row {
@@ -240,8 +240,8 @@
   font-weight: 700;
 }
 
-.badge-formal { background: rgba(47,82,51,0.12); color: var(--forest-deep); }
-.badge-informal { background: rgba(192,138,46,0.15); color: var(--cocoa-deep); }
+.badge-formal { background: rgba(31,110,60,0.13); color: var(--forest-deep); }
+.badge-informal { background: rgba(201,154,30,0.18); color: var(--cocoa-deep); }
 .badge-none { background: rgba(90,79,66,0.1); color: var(--ink-soft); }
 
 .btn-view {
@@ -262,7 +262,7 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(43,33,24,0.5);
+  background: rgba(36,31,18,0.55);
   display: none;
   align-items: center;
   justify-content: center;

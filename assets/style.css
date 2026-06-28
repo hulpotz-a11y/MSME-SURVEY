@@ -4,25 +4,30 @@
    on a phone in bright outdoor light, by someone who is not
    necessarily a frequent app user. Priorities: large tap targets,
    high contrast, unambiguous section progress, calm not flashy.
-   Palette draws from ENB's economy: cocoa-brown, forest green,
-   a warm paper background (echoes the printed form it replaces).
+
+   Palette is drawn directly from the East New Britain provincial
+   flag: green/red/black quadrants, gold stars, and the cream,
+   maroon-bordered emblem field at centre. Hex values were sampled
+   from the actual flag photo rather than approximated, then
+   adjusted slightly for screen legibility (large flat color fields
+   read harsher on a phone than fabric in sunlight does).
    ============================================================ */
 
 :root {
-  --paper: #FBF7EF;
+  --paper: #FBF3DC;
   --paper-raised: #FFFFFF;
-  --ink: #2B2118;
-  --ink-soft: #5A4F42;
-  --cocoa: #6B3F2A;
-  --cocoa-deep: #4A2A1A;
-  --forest: #2F5233;
-  --forest-deep: #1F3A23;
-  --gold: #C08A2E;
-  --line: #E3D9C6;
-  --line-strong: #CFC2A8;
-  --danger: #A13D2B;
+  --ink: #241F12;
+  --ink-soft: #5C5340;
+  --cocoa: #7A0E1C;
+  --cocoa-deep: #560A14;
+  --forest: #1F6E3C;
+  --forest-deep: #154A28;
+  --gold: #C99A1E;
+  --line: #ECDFB8;
+  --line-strong: #DCC889;
+  --danger: #C32630;
   --radius: 10px;
-  --shadow: 0 1px 2px rgba(43,33,24,0.06), 0 2px 8px rgba(43,33,24,0.05);
+  --shadow: 0 1px 2px rgba(36,31,18,0.07), 0 2px 8px rgba(36,31,18,0.06);
 
   --font-display: "Fraunces", "Iowan Old Style", "Georgia", serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -52,8 +57,8 @@ a { color: var(--cocoa); }
 /* ---------------- Header ---------------- */
 
 .site-header {
-  background: linear-gradient(135deg, var(--cocoa-deep) 0%, var(--cocoa) 55%, var(--forest-deep) 100%);
-  color: #F6EFE2;
+  background: linear-gradient(125deg, var(--cocoa-deep) 0%, var(--cocoa) 38%, var(--ink) 62%, var(--forest-deep) 100%);
+  color: #FBF3DC;
   padding: 28px 20px 24px;
   position: relative;
   overflow: hidden;
@@ -63,7 +68,7 @@ a { color: var(--cocoa); }
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at 85% 20%, rgba(255,255,255,0.08), transparent 50%);
+  background-image: radial-gradient(circle at 85% 20%, rgba(201,154,30,0.18), transparent 50%);
   pointer-events: none;
 }
 
@@ -104,18 +109,48 @@ a { color: var(--cocoa); }
 }
 
 .header-nav a {
-  color: #F6EFE2;
+  color: #FBF3DC;
   text-decoration: none;
   font-size: 13px;
   padding: 7px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(246,239,226,0.3);
+  border: 1px solid rgba(251,243,220,0.3);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .header-nav a:hover, .header-nav a.active {
-  background: rgba(246,239,226,0.16);
-  border-color: rgba(246,239,226,0.55);
+  background: rgba(251,243,220,0.16);
+  border-color: rgba(251,243,220,0.55);
+}
+
+.header-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.header-flag-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid rgba(251,243,220,0.55);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  margin-top: 2px;
+}
+
+.header-flag-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 55% 45%;
+  display: block;
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ---------------- Layout ---------------- */
@@ -183,7 +218,7 @@ main {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  background: linear-gradient(180deg, rgba(192,138,46,0.06), transparent);
+  background: linear-gradient(180deg, rgba(201,154,30,0.07), transparent);
 }
 
 .section-letter {
@@ -212,7 +247,7 @@ main {
   color: var(--ink-soft);
   font-style: italic;
   border-top: 1px dashed var(--line-strong);
-  background: rgba(192,138,46,0.05);
+  background: rgba(201,154,30,0.06);
 }
 
 /* ---------------- Form elements ---------------- */
@@ -254,7 +289,7 @@ textarea, select {
   padding: 11px 13px;
   border: 1.5px solid var(--line-strong);
   border-radius: 8px;
-  background: #FFFEFB;
+  background: #FFFDF7;
   color: var(--ink);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -262,7 +297,7 @@ textarea, select {
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--forest);
-  box-shadow: 0 0 0 3px rgba(47,82,51,0.12);
+  box-shadow: 0 0 0 3px rgba(31,110,60,0.14);
 }
 
 textarea { min-height: 70px; resize: vertical; }
@@ -298,7 +333,7 @@ textarea { min-height: 70px; resize: vertical; }
   font-size: 14.5px;
   font-weight: 600;
   color: var(--ink-soft);
-  background: #FFFEFB;
+  background: #FFFDF7;
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
@@ -311,7 +346,7 @@ textarea { min-height: 70px; resize: vertical; }
 }
 
 .choice-pill input:focus-visible + span {
-  box-shadow: 0 0 0 3px rgba(47,82,51,0.25);
+  box-shadow: 0 0 0 3px rgba(31,110,60,0.28);
 }
 
 /* Checkbox list (for activities / training / assistance) */
@@ -333,7 +368,7 @@ textarea { min-height: 70px; resize: vertical; }
   padding: 9px 11px;
   border: 1.5px solid var(--line);
   border-radius: 8px;
-  background: #FFFEFB;
+  background: #FFFDF7;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -357,7 +392,7 @@ textarea { min-height: 70px; resize: vertical; }
 
 .check-item.checked {
   border-color: var(--forest);
-  background: rgba(47,82,51,0.06);
+  background: rgba(31,110,60,0.07);
 }
 
 .subgroup-label {
@@ -434,7 +469,7 @@ textarea { min-height: 70px; resize: vertical; }
 
 .btn-add-row:hover {
   border-color: var(--cocoa);
-  background: rgba(107,63,42,0.05);
+  background: rgba(122,14,28,0.06);
 }
 
 /* ---------------- Buttons ---------------- */
@@ -455,7 +490,7 @@ textarea { min-height: 70px; resize: vertical; }
 .btn-primary {
   background: var(--forest);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(47,82,51,0.3);
+  box-shadow: 0 2px 10px rgba(31,110,60,0.32);
 }
 
 .btn-primary:hover { background: var(--forest-deep); }
@@ -503,7 +538,7 @@ textarea { min-height: 70px; resize: vertical; }
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   background: var(--ink);
-  color: #FBF7EF;
+  color: #FBF3DC;
   padding: 14px 22px;
   border-radius: 10px;
   font-size: 14.5px;
@@ -603,7 +638,7 @@ fieldset { border: none; padding: 0; margin: 0; }
   background: var(--paper-raised);
   border: 1px solid var(--line);
   border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(43,33,24,0.12);
+  box-shadow: 0 8px 30px rgba(36,31,18,0.14);
   padding: 28px 26px 24px;
 }
 
@@ -623,8 +658,8 @@ fieldset { border: none; padding: 0; margin: 0; }
 }
 
 .conn-error {
-  background: rgba(161,61,43,0.08);
-  border: 1px solid rgba(161,61,43,0.25);
+  background: rgba(195,38,48,0.08);
+  border: 1px solid rgba(195,38,48,0.25);
   color: var(--danger);
   font-size: 13px;
   padding: 10px 12px;

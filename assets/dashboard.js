@@ -683,12 +683,12 @@
         * { box-sizing: border-box; }
         body {
           font-family: Georgia, "Times New Roman", serif;
-          color: #2B2118;
+          color: #241F12;
           margin: 0;
           padding: 0 0 30px;
         }
         header {
-          border-bottom: 2px solid #6B3F2A;
+          border-bottom: 2px solid #7A0E1C;
           padding-bottom: 10px;
           margin-bottom: 20px;
         }
@@ -696,12 +696,12 @@
           font-size: 10px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #6B3F2A;
+          color: #7A0E1C;
           margin: 0 0 4px;
           font-family: Arial, sans-serif;
         }
         h1 { font-size: 20px; margin: 0 0 4px; }
-        .meta { font-size: 11px; color: #5A4F42; font-family: Arial, sans-serif; }
+        .meta { font-size: 11px; color: #5C5340; font-family: Arial, sans-serif; }
 
         .household { margin-bottom: 26px; }
         .page-break { break-before: page; page-break-before: always; }
@@ -710,7 +710,7 @@
           display: flex;
           align-items: baseline;
           justify-content: space-between;
-          border-bottom: 1.5px solid #6B3F2A;
+          border-bottom: 1.5px solid #7A0E1C;
           padding-bottom: 6px;
           margin-bottom: 12px;
         }
@@ -723,8 +723,8 @@
           font-size: 10px;
           font-weight: 700;
           text-transform: uppercase;
-          background: #F6EFE2;
-          color: #6B3F2A;
+          background: #FBF3DC;
+          color: #7A0E1C;
           padding: 3px 10px;
           border-radius: 999px;
         }
@@ -736,8 +736,8 @@
         .section-block h3 {
           font-size: 12.5px;
           margin: 0 0 6px;
-          color: #6B3F2A;
-          border-bottom: 1px solid #CFC2A8;
+          color: #7A0E1C;
+          border-bottom: 1px solid #DCC889;
           padding-bottom: 3px;
         }
 
@@ -753,15 +753,15 @@
           font-size: 8.5px;
           text-transform: uppercase;
           letter-spacing: 0.02em;
-          color: #5A4F42;
+          color: #5C5340;
         }
-        .field-value { color: #2B2118; }
+        .field-value { color: #241F12; }
 
         .sub-label {
           font-family: Arial, sans-serif;
           font-size: 9.5px;
           font-weight: 700;
-          color: #5A4F42;
+          color: #5C5340;
           margin: 8px 0 4px;
         }
 
@@ -775,17 +775,17 @@
         thead { display: table-header-group; }
         tr { break-inside: avoid; }
         th, td {
-          border: 1px solid #CFC2A8;
+          border: 1px solid #DCC889;
           padding: 4px 6px;
           text-align: left;
         }
         th {
-          background: #F6EFE2;
+          background: #FBF3DC;
           font-size: 8.5px;
           text-transform: uppercase;
         }
         .empty-cell {
-          color: #5A4F42;
+          color: #5C5340;
           font-style: italic;
           text-align: center;
         }
@@ -793,7 +793,7 @@
         footer {
           margin-top: 16px;
           font-size: 9.5px;
-          color: #5A4F42;
+          color: #5C5340;
           font-family: Arial, sans-serif;
         }
         .print-btn-row { margin-bottom: 18px; }
@@ -801,7 +801,7 @@
           font-family: Arial, sans-serif;
           font-size: 14px;
           font-weight: 700;
-          background: #C08A2E;
+          background: #C99A1E;
           color: #fff;
           border: none;
           padding: 12px 22px;
@@ -894,12 +894,12 @@
         * { box-sizing: border-box; }
         body {
           font-family: Georgia, "Times New Roman", serif;
-          color: #2B2118;
+          color: #241F12;
           margin: 0;
           padding: 0 0 30px;
         }
         header {
-          border-bottom: 2px solid #6B3F2A;
+          border-bottom: 2px solid #7A0E1C;
           padding-bottom: 10px;
           margin-bottom: 20px;
         }
@@ -907,12 +907,12 @@
           font-size: 10px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #6B3F2A;
+          color: #7A0E1C;
           margin: 0 0 4px;
           font-family: Arial, sans-serif;
         }
         h1 { font-size: 22px; margin: 0 0 4px; }
-        .meta { font-size: 11px; color: #5A4F42; font-family: Arial, sans-serif; }
+        .meta { font-size: 11px; color: #5C5340; font-family: Arial, sans-serif; }
 
         .kpi-grid {
           display: grid;
@@ -921,19 +921,19 @@
           margin-bottom: 24px;
         }
         .kpi-box {
-          border: 1px solid #CFC2A8;
+          border: 1px solid #DCC889;
           border-radius: 8px;
           padding: 12px 14px;
           font-family: Arial, sans-serif;
         }
-        .kpi-box .num { font-size: 22px; font-weight: 700; color: #6B3F2A; font-family: Georgia, serif; }
-        .kpi-box .lbl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.03em; color: #5A4F42; }
+        .kpi-box .num { font-size: 22px; font-weight: 700; color: #7A0E1C; font-family: Georgia, serif; }
+        .kpi-box .lbl { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.03em; color: #5C5340; }
 
         .report-section { margin-bottom: 22px; break-inside: avoid; }
         .report-section h2 {
           font-size: 13.5px;
-          color: #6B3F2A;
-          border-bottom: 1px solid #CFC2A8;
+          color: #7A0E1C;
+          border-bottom: 1px solid #DCC889;
           padding-bottom: 4px;
           margin: 0 0 10px;
         }
@@ -953,16 +953,16 @@
           font-family: Arial, sans-serif;
           font-size: 10.5px;
         }
-        .report-bar-label { color: #5A4F42; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .report-bar-label { color: #5C5340; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .report-bar-track { height: 11px; background: #F0E8D8; border-radius: 4px; overflow: hidden; }
-        .report-bar-fill { height: 100%; background: #6B3F2A; border-radius: 4px; }
-        .report-bar-value { text-align: right; color: #5A4F42; }
-        .report-chart-empty { font-size: 10.5px; font-style: italic; color: #5A4F42; font-family: Arial, sans-serif; }
+        .report-bar-fill { height: 100%; background: #7A0E1C; border-radius: 4px; }
+        .report-bar-value { text-align: right; color: #5C5340; }
+        .report-chart-empty { font-size: 10.5px; font-style: italic; color: #5C5340; font-family: Arial, sans-serif; }
 
         footer {
           margin-top: 16px;
           font-size: 9.5px;
-          color: #5A4F42;
+          color: #5C5340;
           font-family: Arial, sans-serif;
         }
         .print-btn-row { margin-bottom: 18px; }
@@ -970,7 +970,7 @@
           font-family: Arial, sans-serif;
           font-size: 14px;
           font-weight: 700;
-          background: #C08A2E;
+          background: #C99A1E;
           color: #fff;
           border: none;
           padding: 12px 22px;
